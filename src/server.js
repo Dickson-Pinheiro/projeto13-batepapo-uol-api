@@ -67,7 +67,7 @@ app.post("/messages", async (req, res) => {
 
     const validation = messageSchema.validate(message, { pick: ["from", "to", "text", "type", "time"], abortEarly: false })
 
-    if(validation.error){
+    if(validation.error || !user){
         return res.status(422).send(validation.error.details)
     }
 
