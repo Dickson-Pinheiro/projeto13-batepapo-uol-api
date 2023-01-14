@@ -114,7 +114,7 @@ app.get("/messages", async (req, res) => {
         return res.send(authorizedMessages.reverse())
     }
 
-    return res.send(authorizedMessages.slice(-1 * limitInt).reverse())
+    return res.send(authorizedMessages.slice(-1 * limit).reverse())
 
 })
 
