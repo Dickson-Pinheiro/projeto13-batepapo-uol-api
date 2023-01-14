@@ -73,9 +73,9 @@ app.post("/messages", async (req, res) => {
 
     try {
 
-        let user = await chatConnetcion.collection("participants").findOne({name: to})
+        let participantExists = await chatConnetcion.collection("participants").findOne({name: to})
 
-        if(!user){
+        if(!participantExists){
             return res.sendStatus(422);
         }
         
