@@ -67,11 +67,17 @@ app.post("/messages", async (req, res) => {
 
     const validation = messageSchema.validate(message, { pick: ["from", "to", "text", "type", "time"], abortEarly: false })
 
-    if(validation.error || !user){
+    if(validation.error){
         return res.status(422).send(validation.error.details)
     }
 
     try {
+
+        let user = await chatConnetcion.collection("participants").findOne({name: to})
+
+        if(!user){
+            return res.sendStatus(422);
+        }
         
         await chatConnetcion.collection("messages").insertOne(message)
         return res.status(201).send()
@@ -96,17 +102,19 @@ app.get("/messages", async (req, res) => {
     })
 
     if (limit === undefined) {
-        return res.send(authorizedMessages)
+        return res.send(authorizedMessages.reverse())
     }
 
-    let limitInt = Number(limit)
+    if(limit <=0 || typeof limit === 'string'){
+        return res.sendStatus(422)
+    }
 
 
     if (authorizedMessages.length <= limit) {
-        return res.send(authorizedMessages)
+        return res.send(authorizedMessages.reverse())
     }
 
-    return res.send(authorizedMessages.slice(-1 * limitInt))
+    return res.send(authorizedMessages.slice(-1 * limitInt).reverse())
 
 })
 
@@ -131,6 +139,7 @@ async function clearInactiveParticipants() {
     participants.forEach(async (participant) => {
         let atualDate = Date.now()
         if (atualDate - participant.lastStatus >= 10000) {
+            await chatConnetcion.collection("messages").insertOne({from: participant.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: dayjs(Date.now()).format("hh:mm:ss")})
             await chatConnetcion.collection("participants").deleteOne({_id: ObjectID(participant._id)})
         }
     })
