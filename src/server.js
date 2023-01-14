@@ -150,6 +150,6 @@ async function clearInactiveParticipants() {
     })
 }
 
-//setInterval(clearInactiveParticipants, 15000)
+setInterval(clearInactiveParticipants, 15000)
 
 app.listen(5000)
