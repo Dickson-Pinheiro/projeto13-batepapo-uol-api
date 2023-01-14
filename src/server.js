@@ -73,10 +73,11 @@ app.post("/messages", async (req, res) => {
 
     try {
 
-        let participantExists = await chatConnetcion.collection("participants").findOne({name: to})
-
-        if(!participantExists){
-            return res.sendStatus(422);
+        if( to!== "Todos" ){
+            let participantExists = await chatConnetcion.collection("participants").findOne({name: to})
+            if(!participantExists){
+                return res.sendStatus(422);
+            }
         }
         
         await chatConnetcion.collection("messages").insertOne(message)
@@ -92,7 +93,6 @@ app.get("/messages", async (req, res) => {
     const { user } = req.headers
 
     const messages = await chatConnetcion.collection("messages").find().toArray()
-    console.log(messages)
 
     let authorizedMessages = messages.filter(m => {
         if (m.type !== "private_message" || m.to === user || m.from === user || m.to === "todos") {
@@ -105,7 +105,11 @@ app.get("/messages", async (req, res) => {
         return res.send(authorizedMessages.reverse())
     }
 
-    if(limit <=0 || typeof limit === 'string'){
+    if(isNaN(limit)){
+        return res.sendStatus(422)
+    }
+
+    if(limit <=0 ){
         return res.sendStatus(422)
     }
 
@@ -145,6 +149,6 @@ async function clearInactiveParticipants() {
     })
 }
 
-setInterval(clearInactiveParticipants, 15000)
+//setInterval(clearInactiveParticipants, 15000)
 
 app.listen(5000)
