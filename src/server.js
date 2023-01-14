@@ -75,7 +75,8 @@ app.post("/messages", async (req, res) => {
 
         if( to!== "Todos" ){
             let participantExists = await chatConnetcion.collection("participants").findOne({name: to})
-            if(!participantExists){
+            let participant2 = await chatConnetcion.collection("participants").findOne({name: user})
+            if(!participantExists || !participant2){
                 return res.sendStatus(422);
             }
         }
@@ -149,6 +150,6 @@ async function clearInactiveParticipants() {
     })
 }
 
-setInterval(clearInactiveParticipants, 15000)
+//setInterval(clearInactiveParticipants, 15000)
 
 app.listen(5000)
